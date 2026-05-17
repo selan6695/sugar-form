@@ -4,277 +4,123 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="糖畫預約">
-<title>畫糖預約管理</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>畫糖文化體驗課程 預約填單</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--green:#1D9E75;--orange:#D4690A;--red:#c0392b;--blue:#2277cc;--bg:#f5f5f3;--card:#fff;--border:rgba(0,0,0,0.1);--text:#1a1a1a;--muted:#888;--warn-bg:#fff8ee;--warn:#c26a00;--success-bg:#e6f9ee;--success:#1a7a4a;--purple-bg:#f3eeff;--purple:#6b3fa0}
-html,body{height:100%;background:var(--bg)}
-body{font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Noto Sans TC',sans-serif;color:var(--text);font-size:14px;padding-bottom:80px}
-.app-wrap{max-width:500px;margin:0 auto;background:var(--bg);min-height:100vh;box-shadow:0 0 60px rgba(0,0,0,0.08)}
-.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:500px;height:64px;background:#fff;border-top:0.5px solid var(--border);display:flex;z-index:100}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:var(--muted);cursor:pointer;border:none;background:transparent;font-family:inherit}
-.tab-item.active{color:var(--green)}
-.tab-icon{font-size:24px}
-.screen{display:none;padding:16px}
-.screen.active{display:block}
-.page-head{padding:20px 16px 8px;display:flex;align-items:center;justify-content:space-between}
-.page-head h1{font-size:22px;font-weight:700}
-.btn-add{width:38px;height:38px;border-radius:50%;background:var(--green);border:none;color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(29,158,117,0.35)}
-.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
-.stat-card{background:#fff;border-radius:12px;padding:10px 6px;text-align:center;border:0.5px solid var(--border)}
-.stat-num{font-size:20px;font-weight:700}
-.stat-label{font-size:10px;color:var(--muted);margin-top:2px}
-.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border:0.5px solid var(--border);cursor:pointer}
-.card:active{opacity:.7}
-.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.card-name{font-size:15px;font-weight:600}
-.card-meta{font-size:12px;color:var(--muted);margin-top:3px}
-.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
-.badge-pending{background:var(--warn-bg);color:var(--warn)}
-.badge-deposit{background:#e8f0ff;color:#2255aa}
-.badge-reconfirm{background:var(--purple-bg);color:var(--purple)}
-.badge-confirmed{background:var(--success-bg);color:var(--success)}
-.badge-cancelled{background:#f0f0ee;color:#aaa}
-.filter-bar{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.filter-bar::-webkit-scrollbar{display:none}
-.filter-chip{padding:7px 14px;border-radius:20px;border:0.5px solid var(--border);background:#fff;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit;color:var(--text);flex-shrink:0}
-.filter-chip.active{background:var(--green);color:#fff;border-color:var(--green)}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center}
-.modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-width:500px;max-height:93vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px}
-.modal h2{font-size:18px;font-weight:700;margin-bottom:16px}
+:root{--green:#D4690A;--bg:#fffaf0;--border:rgba(180,100,0,0.2);--text:#1a1a1a;--muted:#8a6a3a}
+html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'PingFang TC','Noto Sans TC',sans-serif;color:var(--text);font-size:14px}
+.wrap{max-width:480px;margin:0 auto;padding:20px 16px 60px}
+.header{text-align:center;padding:24px 0 20px}
+.header .icon{font-size:40px}
+.header h1{font-size:20px;font-weight:700;margin-top:8px}
+.header p{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
+.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;border:0.5px solid var(--border)}
+.sec-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.07em;margin-bottom:14px}
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
 .field label{font-size:13px;color:var(--muted);font-weight:500}
-.field input,.field select{font-size:15px;padding:11px 13px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.2);outline:none;width:100%;font-family:inherit;background:#fff;color:var(--text);-webkit-appearance:none}
+.field input,.field select{font-size:15px;padding:11px 13px;border-radius:10px;border:0.5px solid var(--border);outline:none;width:100%;font-family:inherit;background:#fff;color:var(--text);-webkit-appearance:none}
 .field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
-.field input[readonly]{background:var(--bg);color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-top:3px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.hint{font-size:12px;color:var(--muted);margin-top:2px}
-.auto-tag{font-size:11px;padding:2px 6px;border-radius:20px;background:#e8f4ff;color:var(--blue);margin-left:4px}
-.sec-div{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;margin:18px 0 10px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
-/* 課程日期列 */
-.session-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;background:var(--bg);border-radius:10px;padding:10px 12px}
-.session-row .row2{flex:1}
-.session-row input,.session-row select{font-size:14px;padding:8px 10px}
-.btn-del-session{width:32px;height:32px;border-radius:50%;border:none;background:rgba(192,57,43,0.1);color:var(--red);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.btn-add-session{width:100%;padding:10px;border-radius:10px;border:0.5px dashed var(--green);background:transparent;color:var(--green);font-size:14px;cursor:pointer;font-family:inherit;margin-top:4px}
-.add-menu{position:fixed;bottom:82px;right:16px;display:none;flex-direction:column;gap:8px;z-index:150;align-items:flex-end}
-.add-menu.open{display:flex}
-.add-menu-btn{padding:10px 18px;border-radius:20px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,0.18);white-space:nowrap}
-.paste-area{width:100%;min-height:120px;padding:12px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.2);font-size:14px;font-family:inherit;resize:vertical;outline:none}
-.paste-area:focus{border-color:var(--green)}
-/* 費用提示 */
-.fee-notice{background:var(--bg);border-radius:10px;padding:12px;font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px}
-.fee-notice strong{color:var(--text)}
-.calc-box{background:var(--bg);border-radius:10px;padding:13px;font-size:14px;display:flex;flex-direction:column;gap:7px;margin-top:10px}
-.calc-row{display:flex;justify-content:space-between;color:var(--muted)}
-.calc-row.total{font-weight:700;color:var(--text);border-top:0.5px solid var(--border);padding-top:7px;margin-top:2px;font-size:15px}
-.msg-preview{background:var(--bg);border-radius:10px;padding:13px;font-size:12px;line-height:1.85;white-space:pre-wrap;color:var(--text);max-height:180px;overflow-y:auto}
-.btn-main{width:100%;padding:15px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;box-shadow:0 2px 10px rgba(29,158,117,0.3)}
+/* 堂次 */
+.session-card{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;border:0.5px solid var(--border)}
+.session-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.session-num{font-size:13px;font-weight:600;color:var(--green)}
+.btn-del{border:none;background:rgba(192,57,43,0.1);color:#c0392b;border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;font-family:inherit}
+.btn-add-session{width:100%;padding:11px;border-radius:10px;border:0.5px dashed #D4690A;background:transparent;color:#D4690A;font-size:14px;cursor:pointer;font-family:inherit;margin-top:4px}
+/* 結果 */
+.result-box{background:#fff;border-radius:14px;padding:18px;margin-top:16px;border:0.5px solid var(--border);display:none}
+.result-text{font-size:13px;line-height:1.85;white-space:pre-wrap;color:var(--text);background:var(--bg);border-radius:10px;padding:14px;max-height:300px;overflow-y:auto}
+.btn-main{width:100%;padding:15px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;box-shadow:0 2px 10px rgba(29,158,117,0.3)}
 .btn-main:active{opacity:.85}
-.btn-main.blue{background:#2255aa;box-shadow:none}
-.btn-main.purple{background:var(--purple);box-shadow:none}
-.btn-main.secondary{background:transparent;border:0.5px solid var(--border);color:var(--text);box-shadow:none;margin-top:6px}
-.btn-main.danger-outline{background:transparent;border:0.5px solid rgba(192,57,43,0.3);color:var(--red);box-shadow:none;margin-top:6px}
-.btn-main.red{background:#c0392b;box-shadow:0 2px 10px rgba(192,57,43,0.3)}
-.info-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border);font-size:14px;gap:12px}
-.info-row:last-child{border-bottom:none}
-.info-label{color:var(--muted);flex-shrink:0}
-.info-val{font-weight:500;text-align:right}
-.step-bar{display:flex;align-items:center;margin:16px 0 20px}
-.step{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
-.step-dot{width:28px;height:28px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
-.step.done .step-dot{background:var(--green);border-color:var(--green);color:#fff}
-.step.current .step-dot{border-color:var(--green);color:var(--green)}
-.step-line{flex:1;height:2px;background:var(--border);margin-bottom:14px}
-.step-line.done{background:var(--green)}
-.report-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;border:0.5px solid var(--border)}
-.report-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
-.empty{text-align:center;color:var(--muted);font-size:13px;padding:48px 0}
-.sec-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.08em;margin-bottom:8px}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.btn-copy{width:100%;padding:13px;border-radius:12px;border:0.5px solid var(--border);background:#fff;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
-/* 確認單編輯 */
-.confirm-pax-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px}
-.cpax-btn{padding:8px 2px;border-radius:7px;border:0.5px solid rgba(0,0,0,0.15);background:transparent;font-size:13px;cursor:pointer;text-align:center;color:var(--text);font-family:inherit}
-.cpax-btn.active{background:#c0392b;color:#fff;border-color:#c0392b;font-weight:600}
+.notice{background:#fff3cd;border-radius:10px;padding:12px;font-size:12px;color:#7a5000;line-height:1.7;margin-bottom:14px;border:0.5px solid #f0c060}
+.btn-gen{width:100%;padding:15px;border-radius:12px;border:none;background:#D4690A;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;box-shadow:0 2px 10px rgba(212,105,10,0.35)}
+.btn-gen:active{opacity:.85}
+.btn-copy{width:100%;padding:13px;border-radius:12px;border:0.5px solid var(--border);background:#fff;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
 </style>
 </head>
 <body>
-<div class="app-wrap">
-  <div class="page-head">
-    <h1 id="page-title">總覽</h1>
-    <button class="btn-add" id="btn-add" onclick="toggleAddMenu()">+</button>
+<div class="wrap">
+  <div class="header">
+    <div class="icon">🐲</div>
+    <h1>畫糖文化體驗課程<br>預約填單</h1>
+    <p>請填寫以下資料，填完後複製傳給阿斌師</p>
   </div>
 
-  <!-- 浮動選單 -->
-  <div class="add-menu" id="add-menu">
-    <button class="add-menu-btn" style="background:#fff;color:var(--text)" onclick="openNewBooking()">✏️ 手動新增預約</button>
-    <button class="add-menu-btn" style="background:var(--green);color:#fff" onclick="openPasteModal()">📋 貼上客戶資料</button>
+  <div class="notice">
+    📌 費用說明：500元/每位學員<br>
+    📌 定金：每堂 2000元，確認後轉帳<br>
+    📌 填完後請按「產生預約資料」，複製傳給阿斌師
   </div>
-  <div class="screen active" id="screen-home">
-    <div class="stat-row" id="stats"></div>
-    <div class="sec-label">待處理</div>
-    <div id="home-list"></div>
-  </div>
-  <div class="screen" id="screen-list">
-    <div class="filter-bar" id="filter-bar"></div>
-    <div id="booking-list"></div>
-  </div>
-  <div class="screen" id="screen-report">
-    <button class="btn-main blue" onclick="exportCSV()" style="margin-bottom:16px">📥 匯出 Excel（CSV）</button>
-    <div class="sec-label">依地區</div><div id="report-region"></div>
-    <div class="sec-label" style="margin-top:16px">依月份</div><div id="report-month"></div>
-    <div class="sec-label" style="margin-top:16px">收款統計</div><div id="report-money"></div>
-  </div>
-  <nav class="tab-bar">
-    <button class="tab-item active" id="tab-home" onclick="switchTab('home')"><span class="tab-icon">🏠</span>總覽</button>
-    <button class="tab-item" id="tab-list" onclick="switchTab('list')"><span class="tab-icon">📋</span>預約</button>
-    <button class="tab-item" id="tab-report" onclick="switchTab('report')"><span class="tab-icon">📊</span>報表</button>
-  </nav>
-</div>
 
-<!-- 新增/編輯預約 Modal -->
-<div class="modal-bg" id="booking-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 id="modal-title">新增預約</h2>
-    <div class="sec-div">客戶資料</div>
-    <div class="row2">
-      <div class="field"><label>中文姓名 *</label><input type="text" id="m-name-zh" placeholder="王小明" autocomplete="off"></div>
-      <div class="field"><label>英文名</label><input type="text" id="m-name-en" placeholder="Mimi" autocomplete="off"></div>
-    </div>
-    <div class="field"><label>手機號碼</label><input type="tel" id="m-phone" placeholder="09XX-XXX-XXX"></div>
-    <div class="sec-div">課程資訊</div>
+  <div class="card">
+    <div class="sec-title">聯絡資料</div>
+    <div class="field"><label>姓名 *</label><input type="text" id="c-name" placeholder="您的姓名"></div>
+    <div class="field"><label>LINE ID *</label><input type="text" id="c-lineid" placeholder="您的 LINE ID（方便聯繫）"></div>
+    <div class="field"><label>手機號碼 *</label><input type="tel" id="c-phone" placeholder="09XX-XXX-XXX"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">課程資訊</div>
     <div class="field">
-      <label>地區（含最低人數）*</label>
-      <select id="m-region" onchange="onRegionChange()">
+      <label>上課地區 *</label>
+      <select id="c-region" onchange="showRegionInfo()">
         <option value="">請選擇地區</option>
         <option value="taipei">雙北（台北／新北）｜最低 12 人</option>
         <option value="zhuzhu">桃竹苗（桃園／新竹／苗栗）｜最低 10 人</option>
         <option value="keelung">基隆｜最低 20 人</option>
         <option value="taichung">台中｜最低 20 人</option>
       </select>
+      <div id="region-info" style="font-size:12px;color:#1a7a4a;margin-top:4px;display:none"></div>
     </div>
-    <div class="field"><label>上課地址</label><input type="text" id="m-addr" placeholder="詳細地址" autocomplete="off"></div>
-    <div class="sec-div">上課日期與時間（可新增多堂）</div>
+    <div class="field"><label>上課地址 *</label><input type="text" id="c-addr" placeholder="請填寫詳細地址"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">上課日期與時間（可新增多堂）</div>
     <div id="sessions-wrap"></div>
     <button class="btn-add-session" onclick="addSession()">＋ 新增堂次</button>
-    <div class="row2" style="margin-top:12px">
-      <div class="field">
-        <label>定金截止 <span class="auto-tag">自動</span></label>
-        <input type="text" id="m-dep-due" readonly>
-        <div class="hint">今天 +3 天</div>
-      </div>
-      <div class="field">
-        <label>確認截止 <span class="auto-tag">自動</span></label>
-        <input type="text" id="m-conf-due" readonly>
-        <div class="hint">最早日期 -7 天</div>
-      </div>
-    </div>
-    <div class="sec-div">費用說明</div>
-    <div class="fee-notice" id="fee-notice">請先選擇地區</div>
-    <div class="calc-box" id="m-calc"></div>
-    <div class="sec-div">訊息預覽</div>
-    <div class="msg-preview" id="m-preview" style="color:#aaa">填寫完整後顯示…</div>
-    <button class="btn-main" onclick="saveBooking()">💾 儲存並複製預約單</button>
-    <button class="btn-main secondary" onclick="closeModal('booking-modal')">取消</button>
   </div>
-</div>
 
-<!-- 詳情 Modal -->
-<div class="modal-bg" id="detail-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <h2 id="d-name" style="margin:0;font-size:18px"></h2>
-      <span id="d-badge" class="badge"></span>
-    </div>
-    <div id="d-steps" class="step-bar"></div>
-    <div id="d-info"></div>
-    <div id="d-actions" style="margin-top:16px"></div>
-    <button class="btn-main secondary" onclick="closeModal('detail-modal')">關閉</button>
-  </div>
-</div>
+  <button class="btn-gen" onclick="generate()">產生預約資料</button>
 
-<!-- 確認單編輯 Modal -->
-<div class="modal-bg" id="confirm-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 style="color:#c0392b">✎ 編輯確認單</h2>
-    <div class="sec-div">最終上課人數</div>
-    <div class="field"><label>選擇實際人數</label><div id="confirm-pax-grid" class="confirm-pax-grid"></div></div>
-    <div class="calc-box" id="confirm-calc"></div>
-    <div class="sec-div">預覽確認單</div>
-    <div class="msg-preview" id="confirm-preview"></div>
-    <button class="btn-main red" onclick="copyConfirmMsg()">📋 複製確認單</button>
-    <button class="btn-main secondary" onclick="closeModal('confirm-modal')">關閉</button>
-  </div>
-</div>
-
-<!-- 訊息 Modal -->
-<div class="modal-bg" id="msg-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 id="msg-title">訊息</h2>
-    <div class="msg-preview" id="msg-content"></div>
-    <button class="btn-main" onclick="copyMsg()">📋 複製訊息</button>
-    <button class="btn-main secondary" onclick="closeModal('msg-modal')">關閉</button>
-  </div>
-</div>
-
-<!-- 貼上客戶資料 Modal -->
-<div class="modal-bg" id="paste-modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h2>貼上客戶資料</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:14px">將客戶傳來的預約資料貼入下方，按「解析並生成」</p>
-    <textarea class="paste-area" id="paste-area" placeholder="【畫糖課程預約資料】
-姓名：王小明
-LINE ID：abc123
-電話：0912-345-678
-地區：雙北（台北／新北）
-地址：台北市...
-堂數：1堂
-第1堂：6/6（六） 14:00
-定金：2000元
----以上資料請勿修改---"></textarea>
-    <button class="btn-main" onclick="parseAndFill()" style="margin-top:12px">🔍 解析並生成預約單</button>
-    <button class="btn-main secondary" onclick="closeModal('paste-modal')">取消</button>
+  <div class="result-box" id="result-box">
+    <div class="sec-title" style="margin-bottom:10px">✅ 預約資料已產生</div>
+    <div class="result-text" id="result-text"></div>
+    <button class="btn-gen" onclick="copyResult()">點我複製（貼給阿斌師）</button>
+    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">複製後請貼到 LINE 傳給阿斌師</p>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SURL='https://hfumliowejworifplzft.supabase.co';
-const SKEY='sb_publishable_Lw_0aQYMQ2ApdK4Ssas_3g_Qnjy78j-';
-const db=supabase.createClient(SURL,SKEY);
-
 const REGIONS={
-  taipei:{label:'雙北',travel:500,minPax:12},
-  zhuzhu:{label:'桃竹苗',travel:500,minPax:10},
-  keelung:{label:'基隆',travel:1000,minPax:20},
-  taichung:{label:'台中',travel:1000,minPax:20}
+  taipei:{label:'雙北（台北／新北）',minPax:12,travel:500},
+  zhuzhu:{label:'桃竹苗（桃園／新竹／苗栗）',minPax:10,travel:500},
+  keelung:{label:'基隆',minPax:20,travel:1000},
+  taichung:{label:'台中',minPax:20,travel:1000}
 };
-const STATUS={
-  pending:{label:'待收定金',cls:'badge-pending'},
-  deposit:{label:'已收定金',cls:'badge-deposit'},
-  reconfirm:{label:'待確認人數',cls:'badge-reconfirm'},
-  confirmed:{label:'已收尾款',cls:'badge-confirmed'},
-  cancelled:{label:'已取消',cls:'badge-cancelled'}
-};
+let sessionCount=0;
 
-let books=[], editingId=null, currentFilter='all', currentMsg='';
-let confirmBookId=null, confirmPax=0;
+function showRegionInfo(){
+  const key=document.getElementById('c-region').value;
+  const reg=REGIONS[key];
+  const info=document.getElementById('region-info');
+  if(reg){
+    info.textContent=`📌 最低開班 ${reg.minPax} 人・未達人數仍開班以 ${reg.minPax} 人計費・交通費 ${reg.travel.toLocaleString()} 元`;
+    info.style.color='#D4690A';
+  } else {
+    info.style.display='none';
+  }
+}
 
-// 時間選單
 function makeTimeOptions(){
-  let h='<option value="">請選擇</option>';
+  let h='<option value="">請選擇時間</option>';
   for(let i=6;i<=22;i++) for(let m=0;m<60;m+=30){
     if(i===22&&m>0)break;
     const v=`${String(i).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
@@ -283,639 +129,93 @@ function makeTimeOptions(){
   return h;
 }
 
-function fd(d){return`${d.getMonth()+1}/${d.getDate()}`}
-function ff(s){if(!s)return'';const d=new Date(s+'T00:00:00'),w=['日','一','二','三','四','五','六'];return`${d.getMonth()+1}/${d.getDate()}（${w[d.getDay()]}）`}
-function fm(s){if(!s)return'';const d=new Date(s+'T00:00:00');return`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}`}
-
-async function loadBooks(){
-  const{data,error}=await db.from('bookings').select('*').order('created_at',{ascending:false});
-  if(error){showToast('載入失敗');return[];}
-  return data||[];
-}
-async function upsert(rec){
-  const{error}=await db.from('bookings').upsert(rec,{onConflict:'id'});
-  if(error){showToast('儲存失敗：'+error.message);return false;}
-  return true;
-}
-async function del(id){
-  const{error}=await db.from('bookings').delete().eq('id',id);
-  if(error){showToast('刪除失敗');return false;}
-  return true;
-}
-
-function switchTab(name){
-  ['home','list','report'].forEach(t=>{
-    document.getElementById('screen-'+t).classList.toggle('active',t===name);
-    document.getElementById('tab-'+t).classList.toggle('active',t===name);
-  });
-  const titles={home:'總覽',list:'預約紀錄',report:'報表分析'};
-  document.getElementById('page-title').textContent=titles[name];
-  document.getElementById('btn-add').style.display=name==='report'?'none':'flex';
-  renderAll();
-}
-
-function renderHome(){
-  const pend=books.filter(b=>b.status==='pending').length;
-  const dep=books.filter(b=>b.status==='deposit').length;
-  const reconf=books.filter(b=>b.status==='reconfirm').length;
-  const conf=books.filter(b=>b.status==='confirmed').length;
-  const active=books.filter(b=>b.status!=='cancelled').length;
-  document.getElementById('stats').innerHTML=`
-    <div class="stat-card"><div class="stat-num">${active}</div><div class="stat-label">總預約</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--warn)">${pend+dep}</div><div class="stat-label">進行中</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--purple)">${reconf}</div><div class="stat-label">待確認</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${conf}</div><div class="stat-label">已完成</div></div>`;
-  const urgent=books.filter(b=>['pending','deposit','reconfirm'].includes(b.status)).slice(0,6);
-  document.getElementById('home-list').innerHTML=urgent.length?urgent.map(bookCard).join(''):'<div class="empty">沒有待處理項目 🎉</div>';
-}
-
-function renderList(){
-  const regions=[...new Set(books.map(b=>b.region).filter(Boolean))];
-  const chips=[
-    {v:'all',l:'全部'},{v:'pending',l:'待收定金'},{v:'deposit',l:'已收定金'},
-    {v:'reconfirm',l:'待確認人數'},{v:'confirmed',l:'已完成'},{v:'cancelled',l:'已取消'},
-    ...regions.map(r=>({v:'r:'+r,l:r}))
-  ];
-  document.getElementById('filter-bar').innerHTML=chips.map(f=>`<button class="filter-chip${currentFilter===f.v?' active':''}" onclick="setFilter('${f.v}')">${f.l}</button>`).join('');
-  let list=books.slice();
-  if(currentFilter!=='all'){
-    if(currentFilter.startsWith('r:'))list=list.filter(b=>b.region===currentFilter.slice(2));
-    else list=list.filter(b=>b.status===currentFilter);
-  }
-  document.getElementById('booking-list').innerHTML=list.length?list.map(bookCard).join(''):'<div class="empty">沒有符合的預約</div>';
-}
-function setFilter(v){currentFilter=v;renderList();}
-
-function bookCard(b){
-  const s=STATUS[b.status]||STATUS.pending;
-  const name=b.name_en?`${b.name_zh}（${b.name_en}）`:b.name_zh;
-  const sessions=b.sessions||[];
-  const firstDate=sessions.length?ff(sessions[0].date):'—';
-  const sessionStr=sessions.length>1?` 等 ${sessions.length} 堂`:'';
-  return`<div class="card" onclick="openDetail('${b.id}')">
-    <div class="card-head">
-      <div style="flex:1;min-width:0">
-        <div class="card-name">${name}</div>
-        <div class="card-meta">${firstDate}${sessions[0]?.time?' '+sessions[0].time:''}${sessionStr}</div>
-        <div class="card-meta">${b.region||''} · 定金 ${((sessions.length||1)*2000).toLocaleString()} 元</div>
-      </div>
-      <span class="badge ${s.cls}">${s.label}</span>
-    </div>
-  </div>`;
-}
-
-function openDetail(id){
-  const b=books.find(x=>x.id===id); if(!b)return;
-  const s=STATUS[b.status]||STATUS.pending;
-  const name=b.name_en?`${b.name_zh}（${b.name_en}）`:b.name_zh;
-  document.getElementById('d-name').textContent=name;
-  const badge=document.getElementById('d-badge');
-  badge.className='badge '+s.cls; badge.textContent=s.label;
-
-  // 進度條
-  const steps=[{k:'pending',l:'收定金'},{k:'deposit',l:'已收定金'},{k:'reconfirm',l:'確認人數'},{k:'confirmed',l:'收尾款'}];
-  const si=steps.findIndex(x=>x.k===b.status);
-  document.getElementById('d-steps').innerHTML=steps.map((st,i)=>{
-    const done=b.status==='confirmed'||si>i, cur=si===i&&b.status!=='confirmed';
-    return`<div class="step ${done?'done':cur?'current':''}"><div class="step-dot">${done?'✓':i+1}</div>${st.l}</div>${i<3?`<div class="step-line ${b.status==='confirmed'||si>i?'done':''}"></div>`:''}`;
-  }).join('');
-
-  const sessions=b.sessions||[];
-  const sessionHtml=sessions.map((s,i)=>`<div style="font-size:13px;padding:4px 0;border-bottom:0.5px solid var(--border)">${i+1}. ${ff(s.date)} ${s.time||''}</div>`).join('');
-  document.getElementById('d-info').innerHTML=`
-    <div class="info-row"><span class="info-label">電話</span><span class="info-val">${b.phone||'—'}</span></div>
-    <div class="info-row"><span class="info-label">地區</span><span class="info-val">${b.region||'—'}</span></div>
-    <div class="info-row"><span class="info-label">地址</span><span class="info-val">${b.addr||'—'}</span></div>
-    <div class="info-row"><span class="info-label">堂次</span><span class="info-val">${sessions.length} 堂</span></div>
-    <div class="info-row" style="flex-direction:column;align-items:flex-start;gap:6px"><span class="info-label">上課日期</span><div style="width:100%">${sessionHtml||'—'}</div></div>
-    <div class="info-row"><span class="info-label">定金</span><span class="info-val">${((sessions.length||1)*2000).toLocaleString()} 元（${sessions.length}堂×2000）</span></div>
-    <div class="info-row"><span class="info-label">定金截止</span><span class="info-val">${b.dep_due||'—'}</span></div>
-    <div class="info-row"><span class="info-label">確認截止</span><span class="info-val">${b.conf_due||'—'}</span></div>
-    ${b.final_pax?`<div class="info-row"><span class="info-label">最終人數</span><span class="info-val" style="color:var(--green);font-weight:700">${b.final_pax}人</span></div>`:''}
-    ${b.balance?`<div class="info-row"><span class="info-label">尾款</span><span class="info-val" style="color:var(--green);font-weight:700">${b.balance.toLocaleString()} 元</span></div>`:''}`;
-
-  const acts=document.getElementById('d-actions'); acts.innerHTML='';
-  const ab=(txt,cls,fn)=>{const btn=document.createElement('button');btn.className='btn-main '+cls;btn.textContent=txt;btn.onclick=fn;acts.appendChild(btn);};
-  ab('📋 複製預約單','',()=>showMsg(b.msg1||buildMsg1(b),'預約單'));
-  if(b.status==='pending') ab('✅ 已收定金','blue',()=>setStatus(id,'deposit'));
-  if(b.status==='deposit') ab('👥 進入待確認人數','purple',()=>setStatus(id,'reconfirm'));
-  if(b.status==='reconfirm') ab('✎ 編輯確認單（選人數）','purple',()=>openConfirmModal(id));
-  if(b.status==='confirmed') ab('📋 複製課前通知','',()=>showMsg(buildPre(b),'課前通知'));
-  if(b.status!=='cancelled'&&b.status!=='confirmed') ab('✕ 取消','danger-outline',()=>{if(confirm('確定取消？'))setStatus(id,'cancelled');});
-  ab('✎ 編輯預約','secondary',()=>{closeModal('detail-modal');openEdit(id);});
-  ab('🗑 刪除','danger-outline',async()=>{
-    if(!confirm('確定刪除？'))return;
-    if(await del(id)){books=books.filter(x=>x.id!==id);closeModal('detail-modal');renderAll();showToast('已刪除');}
-  });
-  openModal('detail-modal');
-}
-
-async function setStatus(id,status){
-  const b=books.find(x=>x.id===id); if(!b)return;
-  b.status=status;
-  if(await upsert(b)){
-    closeModal('detail-modal');
-    showToast({deposit:'已標記收定金 ✓',reconfirm:'進入待確認人數',confirmed:'已收尾款 🎉',cancelled:'已取消'}[status]||'已更新');
-    renderAll();
-  }
-}
-
-// 確認單編輯 Modal
-function openConfirmModal(id){
-  const b=books.find(x=>x.id===id); if(!b)return;
-  confirmBookId=id;
-  const reg=REGIONS[b.region_key]||{minPax:12,travel:0};
-  confirmPax=b.final_pax||reg.minPax;
-  buildConfirmPaxGrid(b);
-  updateConfirmCalc(b);
-  openModal('confirm-modal');
-}
-
-function buildConfirmPaxGrid(b){
-  const reg=REGIONS[b.region_key]||{minPax:12};
-  const min=reg.minPax;
-  let h='';
-  for(let p=min;p<=40;p++)h+=`<button class="cpax-btn${confirmPax===p?' active':''}" onclick="selectConfirmPax(${p},'${b.id}')">${p}人</button>`;
-  document.getElementById('confirm-pax-grid').innerHTML=h;
-}
-
-function selectConfirmPax(p,id){
-  confirmPax=p;
-  const b=books.find(x=>x.id===id);
-  buildConfirmPaxGrid(b);
-  updateConfirmCalc(b);
-}
-
-function updateConfirmCalc(b){
-  const reg=REGIONS[b.region_key]||{travel:0,minPax:12};
-  const sessions=b.sessions||[];
-  const nSessions=sessions.length||1;
-  const courseFeePerSession=confirmPax*500;
-  const totalCourse=courseFeePerSession*nSessions;
-  const totalTravel=reg.travel;
-  const totalDeposit=(sessions.length||1)*2000;
-  const balance=totalCourse+totalTravel-totalDeposit;
-
-  document.getElementById('confirm-calc').innerHTML=`
-    <div class="calc-row"><span>課程費（${confirmPax}人×500×${nSessions}堂）</span><span>${totalCourse.toLocaleString()} 元</span></div>
-    ${reg.travel>0?`<div class="calc-row"><span>交通費</span><span>${totalTravel.toLocaleString()} 元</span></div>`:''}
-    <div class="calc-row"><span>已付定金（${nSessions}堂×2000）</span><span>－${totalDeposit.toLocaleString()} 元</span></div>
-    <div class="calc-row total"><span>尾款</span><span>${balance.toLocaleString()} 元</span></div>`;
-
-  // 預覽確認單
-  const name=b.name_en?`${b.name_zh}（${b.name_en}）`:b.name_zh;
-  const sessions2=b.sessions||[];
-  const sessionLines=sessions2.map((s,i)=>`第${i+1}堂：${ff(s.date)} ${s.time||''}`).join('\n');
-  let balDue='＿';
-  if(sessions2[0]?.date){const dd=new Date(sessions2[0].date+'T00:00:00');dd.setDate(dd.getDate()-7);balDue=fd(dd);}
-  const msg=`🐲【傳統畫糖文化體驗課程確認單】
-
-聯絡人：${name}
-電話  : ${b.phone||'＿'}
-地址 ：${b.addr||'＿'}
-
-${sessionLines}
-
-💰課程費用：500元/每位學員
-📚最低開課人數：${reg.minPax}位
-💰最終人數：${confirmPax}人
-
-💰費用明細：
-課程費（${confirmPax}人×500×${nSessions}堂）= ${totalCourse.toLocaleString()}元
-${reg.travel>0?`交通費 = ${totalTravel.toLocaleString()}元\n`:''}已付定金（${nSessions}堂×2000）= －${totalDeposit.toLocaleString()}元
-尾款 = ${balance.toLocaleString()}元
-
-💰請於 ${balDue} 前將尾款${balance.toLocaleString()}元轉帳至以下帳號：
-銀行：中國信託新竹分行（822）
-帳號：299531713389
-
-❇也歡迎使用 Line Pay，阿斌師 Line ID：selanchen
-
-✨注意事項（必讀）
-*麻煩提供老師停車資訊，感謝
-*準時上課不等人；請學員提早10分鐘到現場。
-*現場請準備每位學員皆有座位。
-*一張長桌給老師單獨使用。建議桌面有桌布或鋪紙。
-*備妥110V插座（延長線老師準備）。
-*上課當天未到視同放棄不退費、不補課。
-
-感謝您的邀約，感謝您對傳統技藝的鼓勵和支持～`;
-
-  document.getElementById('confirm-preview').textContent=msg;
-  document.getElementById('confirm-preview')._msg=msg;
-  document.getElementById('confirm-preview')._balance=balance;
-  document.getElementById('confirm-preview')._pax=confirmPax;
-}
-
-async function copyConfirmMsg(){
-  const b=books.find(x=>x.id===confirmBookId); if(!b)return;
-  const msg=document.getElementById('confirm-preview')._msg||'';
-  const balance=document.getElementById('confirm-preview')._balance||0;
-  const pax=document.getElementById('confirm-preview')._pax||0;
-  b.final_pax=pax; b.balance=balance; b.status='confirmed';
-  if(await upsert(b)){
-    navigator.clipboard.writeText(msg).catch(()=>{});
-    closeModal('confirm-modal');
-    closeModal('detail-modal');
-    showToast('確認單已複製，狀態更新為已收尾款 ✓');
-    renderAll();
-  }
-}
-
-// 訊息產生
-function buildMsg1(b){
-  const name=b.name_en?`${b.name_zh}（${b.name_en}）`:b.name_zh;
-  const reg=REGIONS[b.region_key]||{minPax:12,travel:0,label:''};
-  const sessions=b.sessions||[];
-  const nSessions=sessions.length||1;
-  const sessionLines=sessions.map((s,i)=>`第${i+1}堂：${ff(s.date)} ${s.time||'＿'}`).join('\n');
-  const tl=reg.travel>0?`\n💰交通費：${reg.travel}元（${reg.label}地區）`:'';
-  const deposit=nSessions*2000;
-  return `${sessions[0]?.date?ff(sessions[0].date):''}🐲【糖畫職人教你畫】
-『畫糖文化體驗課程預約單』：
-
-聯絡人：${name||'＿'}
-電話  : ${b.phone||'＿'}
-地址 ：${b.addr||'＿'}
-
-${sessionLines}
-
-💰課程費用：500元/每位學員
-📚此地區最低開班人數：${reg.minPax}人
-⚠️未達最低開班人數若仍要開班，將以${reg.minPax}人計費${tl}
-
-💰定金：${deposit.toLocaleString()}元（${nSessions}堂 × 2000元）
-
-銀行：中國信託新竹分行（822）
-帳號：299531713389
-
-❤️請於 ${b.dep_due||'＿'} 前將定金${deposit.toLocaleString()}元轉帳至以上帳號，感謝你。
-未收到定金該日即開放其他人預約。
-
-⚠️收到定金後，我將在 ${b.conf_due||'＿'} 前確認最後上課人數，再發出課程確認單給您，完成✅尾款交付後課程即成立。
-
-
-❇也歡迎使用 Line Pay 一卡通，阿斌師✳️Line ID：selanchen
-
-⭐️⭐️⭐️⭐️⭐️
-課程評價：
-https://forms.gle/c9BdP2AvetGpF5Es7
-
-媒體報導：
-TVBS 一步一腳印 發現新台灣 專訪
-https://youtu.be/WNZefc0IteY
-
-課程簡介與預約課程注意事項⚠️
-https://reurl.cc/A8nYgQ
-
-
-🍎課程預約說明🍎（一定要看）
-
-⚠️1. 確定上課日期後請於三日內付（每堂）定金2000元，之後會從尾款中扣除；指定日期內未繳交定金則該日期不為你保留，並開放給其他人預約。
-
-⚠️2. 課程尾款在上課日5天前須付清；指定日期未收到尾款則視同取消不退回定金。
-🌟（不接受當天付費）
-
-3. 付定金後取消預約或未達最低上課人數則不退回定金。
-4. 確定日期並付定金後不接受更改日期或延期，視同取消不退回定金。
-5. 上課日三天之前取消上課退費50%。
-
-🚧《場地需求》🚧（一定要看）
-
-1. 學員可以不需要桌面，有椅子坐或地板乾淨也可以坐在地板上課（前方準備一張長桌+6張椅子給阿斌師）
-2. 上課現場需要110V插座（2個）。請確認插座有電可以正常使用。
-3. 上課場地等費用、清潔費..等我方不負責。
-4. 因場地、電力…等問題造成課程無法進行，由主辦方負責。
-5. 開課人數依車程（或縣市）而有所不同，若預約後變更地點可能產生車馬費須由你支付。
-6. 教學設備老師會使用推車載運，無法推車及1F以上無電梯請提前告知。
-7. 準時上課不等人，老師會提早30分鐘到現場安排課程配置。
-8. 若需要阿斌師協助招生，請告知。我會將你的FB傳給想上課的朋友，她們會私訊你報名。
-
-🍒務必確認以上資訊。
-🍀可配合以上事項內容再繳付定金，謝謝。`;
-}
-
-function buildPre(b){
-  const sessions=b.sessions||[];
-  const firstDate=sessions[0]?.date?ff(sessions[0].date):'＿';
-  const startTime=(sessions[0]?.time||'').split('-')[0]||'＿';
-  let at='＿';
-  if(sessions[0]?.time&&sessions[0].time.includes(':')){
-    const[h,m]=sessions[0].time.split(':').map(Number);
-    const dt=new Date(2000,0,1,h,m-40);
-    if(!isNaN(dt))at=`${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
-  }
-  return `有收到尾款，感謝你。\n我們${firstDate}見喔。\n再麻煩提供老師停車資訊好嗎？感謝你\n我當天${at}前會到。\n請通知學員們提早10分鐘到上課現場，${startTime}會準時上課喔。`;
-}
-
-// 堂次管理
-let sessionCount=0;
-function addSession(date='',time=''){
+function addSession(){
   sessionCount++;
-  const id=`session-${sessionCount}`;
   const div=document.createElement('div');
-  div.className='session-row'; div.id=id;
-  div.innerHTML=`<div class="row2" style="flex:1">
-    <input type="date" class="s-date" onchange="updateDates()" placeholder="日期">
-    <select class="s-time">${makeTimeOptions()}</select>
-  </div>
-  <button class="btn-del-session" onclick="removeSession('${id}')">×</button>`;
+  div.className='session-card'; div.id=`sess-${sessionCount}`;
+  div.innerHTML=`
+    <div class="session-head">
+      <span class="session-num">第 ${sessionCount} 堂</span>
+      ${sessionCount>1?`<button class="btn-del" onclick="delSession('sess-${sessionCount}')">刪除</button>`:''}
+    </div>
+    <div class="row2">
+      <div class="field"><label>上課日期</label><input type="date" class="s-date"></div>
+      <div class="field"><label>上課時間（1.5～2小時）</label><select class="s-time">${makeTimeOptions()}</select></div>
+    </div>`;
   document.getElementById('sessions-wrap').appendChild(div);
-  if(date)div.querySelector('.s-date').value=date;
-  if(time)div.querySelector('.s-time').value=time;
-  // 加入時間旁的提示
-  const hint=document.createElement('div');
-  hint.style.cssText='font-size:11px;color:var(--muted);margin-top:2px;grid-column:2';
-  hint.textContent='（1.5～2小時）';
-  div.querySelector('.row2').appendChild(hint);
-  updateDates();
 }
 
-function removeSession(id){
+function delSession(id){
   const el=document.getElementById(id);
   if(el)el.remove();
-  updateDates();
+  // 重新編號
+  document.querySelectorAll('.session-card').forEach((card,i)=>{
+    card.querySelector('.session-num').textContent=`第 ${i+1} 堂`;
+  });
 }
 
 function getSessions(){
-  const rows=document.getElementById('sessions-wrap').querySelectorAll('.session-row');
-  return Array.from(rows).map(r=>({date:r.querySelector('.s-date').value,time:r.querySelector('.s-time').value})).filter(s=>s.date);
+  return Array.from(document.querySelectorAll('.session-card')).map(card=>({
+    date:card.querySelector('.s-date').value,
+    time:card.querySelector('.s-time').value
+  })).filter(s=>s.date);
 }
 
-function updateDates(){
+function ff(s){
+  if(!s)return'＿';
+  const d=new Date(s+'T00:00:00'),w=['日','一','二','三','四','五','六'];
+  return`${d.getMonth()+1}/${d.getDate()}（${w[d.getDay()]}）`;
+}
+
+function generate(){
+  const name=document.getElementById('c-name').value.trim();
+  const lineid=document.getElementById('c-lineid').value.trim();
+  const phone=document.getElementById('c-phone').value.trim();
+  const regionKey=document.getElementById('c-region').value;
+  const addr=document.getElementById('c-addr').value.trim();
   const sessions=getSessions();
-  if(!sessions.length)return;
-  // 定金截止 = 今天+3
-  const dep=new Date(); dep.setDate(dep.getDate()+3);
-  document.getElementById('m-dep-due').value=fd(dep);
-  // 確認截止 = 最早日期-7
-  const dates=sessions.map(s=>s.date).filter(Boolean).sort();
-  if(dates[0]){
-    const d=new Date(dates[0]+'T00:00:00'); d.setDate(d.getDate()-7);
-    document.getElementById('m-conf-due').value=fd(d);
-  }
-  updateFormCalc();
-}
 
-function onRegionChange(){
-  const key=document.getElementById('m-region').value;
-  const reg=REGIONS[key];
-  const notice=document.getElementById('fee-notice');
-  if(reg){
-    notice.innerHTML=`<strong>500元/每位學員</strong>，此地區最低開班 <strong>${reg.minPax}人</strong><br>未達最低人數若仍要開班，將以 <strong>${reg.minPax}人</strong> 計費<br>交通費：<strong>${reg.travel.toLocaleString()}元</strong>`;
-  } else {
-    notice.textContent='請先選擇地區';
-  }
-  updateFormCalc();
-}
-
-function updateFormCalc(){
-  const key=document.getElementById('m-region').value;
-  const reg=REGIONS[key];
-  const sessions=getSessions();
-  const n=sessions.length||0;
-  const calc=document.getElementById('m-calc');
-  const prev=document.getElementById('m-preview');
-  if(!reg||!n){calc.innerHTML='';prev.textContent='填寫完整後顯示…';prev.style.color='#aaa';return;}
-  const deposit=n*2000;
-  calc.innerHTML=`<div class="calc-row"><span>定金（${n}堂 × 2000元）</span><span>${deposit.toLocaleString()} 元</span></div>
-  <div class="calc-row" style="font-size:12px;color:var(--muted)">課程費及尾款於確認人數後計算</div>`;
-  const depDue=document.getElementById('m-dep-due').value||'＿';
-  const confDue=document.getElementById('m-conf-due').value||'＿';
-  prev.style.color='';
-  prev.textContent=`銀行：中國信託新竹分行（822）\n帳號：299531713389\n\n❤️請於 ${depDue} 前將定金${deposit.toLocaleString()}元轉帳。\n（共${n}堂，每堂2000元）\n⚠️我將在 ${confDue} 前確認最後人數後發出確認單。`;
-}
-
-function toggleAddMenu(){
-  const menu=document.getElementById('add-menu');
-  menu.classList.toggle('open');
-}
-// 點外面關閉選單
-document.addEventListener('click',e=>{
-  const menu=document.getElementById('add-menu');
-  const btn=document.getElementById('btn-add');
-  if(!menu.contains(e.target)&&!btn.contains(e.target))menu.classList.remove('open');
-});
-
-function openPasteModal(){
-  document.getElementById('add-menu').classList.remove('open');
-  document.getElementById('paste-area').value='';
-  openModal('paste-modal');
-}
-
-function parseAndFill(){
-  const txt=document.getElementById('paste-area').value.trim();
-  if(!txt){showToast('請先貼上客戶資料');return;}
-
-  const get=(key)=>{
-    const re=new RegExp(key+'[：:]+(.+)');
-    const m=txt.match(re);
-    return m?m[1].trim():'';
-  };
-
-  const name=get('姓名');
-  const lineid=get('LINE ID');
-  const phone=get('電話');
-  const regionRaw=get('地區');
-  const addr=get('地址');
-
-  // 解析地區
-  let regionKey='';
-  if(regionRaw.includes('雙北')||regionRaw.includes('台北')||regionRaw.includes('新北'))regionKey='taipei';
-  else if(regionRaw.includes('桃')||regionRaw.includes('竹')||regionRaw.includes('苗'))regionKey='zhuzhu';
-  else if(regionRaw.includes('基隆'))regionKey='keelung';
-  else if(regionRaw.includes('台中'))regionKey='taichung';
-
-  // 解析堂次：「第N堂：6/6（六） 14:00」
-  const sessionMatches=[...txt.matchAll(/第\d+堂[：:]+([^\n]+)/g)];
-  const sessions=sessionMatches.map(m=>{
-    const raw=m[1].trim();
-    // 解析日期：找 數字/數字
-    const dateMatch=raw.match(/(\d+)\/(\d+)/);
-    const timeMatch=raw.match(/(\d{2}:\d{2})/);
-    let date='';
-    if(dateMatch){
-      const now=new Date();
-      const mo=parseInt(dateMatch[1]);
-      const dy=parseInt(dateMatch[2]);
-      let yr=now.getFullYear();
-      if(mo<now.getMonth()+1)yr++;
-      date=`${yr}-${String(mo).padStart(2,'0')}-${String(dy).padStart(2,'0')}`;
-    }
-    return{date, time:timeMatch?timeMatch[1]:''};
-  }).filter(s=>s.date);
-
-  if(!name){showToast('找不到姓名，請確認格式');return;}
-
-  // 填入表單
-  closeModal('paste-modal');
-  editingId=null; sessionCount=0;
-  document.getElementById('modal-title').textContent='新增預約（客戶資料）';
-  document.getElementById('m-name-zh').value=name;
-  document.getElementById('m-name-en').value=lineid; // LINE ID 填入英文名欄位
-  document.getElementById('m-phone').value=phone;
-  document.getElementById('m-region').value=regionKey;
-  document.getElementById('m-addr').value=addr;
-  document.getElementById('m-dep-due').value='';
-  document.getElementById('m-conf-due').value='';
-  document.getElementById('sessions-wrap').innerHTML='';
-  if(sessions.length){sessions.forEach(s=>addSession(s.date,s.time));}
-  else addSession();
-  onRegionChange();
-  const dep=new Date(); dep.setDate(dep.getDate()+3);
-  document.getElementById('m-dep-due').value=fd(dep);
-  openModal('booking-modal');
-  showToast('資料已帶入，請確認後儲存');
-}
-
-function openNewBooking(){
-  editingId=null; sessionCount=0;
-  document.getElementById('modal-title').textContent='新增預約';
-  ['m-name-zh','m-name-en','m-phone','m-addr','m-dep-due','m-conf-due'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('m-region').value='';
-  document.getElementById('sessions-wrap').innerHTML='';
-  document.getElementById('m-calc').innerHTML='';
-  document.getElementById('fee-notice').textContent='請先選擇地區';
-  document.getElementById('m-preview').textContent='填寫完整後顯示…';
-  document.getElementById('m-preview').style.color='#aaa';
-  // 預設一個堂次
-  addSession();
-  const dep=new Date(); dep.setDate(dep.getDate()+3);
-  document.getElementById('m-dep-due').value=fd(dep);
-  openModal('booking-modal');
-}
-
-function openEdit(id){
-  const b=books.find(x=>x.id===id); if(!b)return;
-  editingId=id; sessionCount=0;
-  document.getElementById('modal-title').textContent='編輯預約';
-  document.getElementById('m-name-zh').value=b.name_zh||'';
-  document.getElementById('m-name-en').value=b.name_en||'';
-  document.getElementById('m-phone').value=b.phone||'';
-  document.getElementById('m-region').value=b.region_key||'';
-  document.getElementById('m-addr').value=b.addr||'';
-  document.getElementById('m-dep-due').value=b.dep_due||'';
-  document.getElementById('m-conf-due').value=b.conf_due||'';
-  document.getElementById('sessions-wrap').innerHTML='';
-  const sessions=b.sessions||[];
-  if(sessions.length){sessions.forEach(s=>addSession(s.date,s.time));}
-  else addSession();
-  onRegionChange();
-  openModal('booking-modal');
-}
-
-async function saveBooking(){
-  const name_zh=document.getElementById('m-name-zh').value.trim();
-  const region_key=document.getElementById('m-region').value;
-  const sessions=getSessions();
-  if(!name_zh){showToast('請填寫姓名');return;}
-  if(!region_key){showToast('請選擇地區');return;}
+  if(!name){showToast('請填寫姓名');return;}
+  if(!lineid){showToast('請填寫 LINE ID');return;}
+  if(!phone){showToast('請填寫手機號碼');return;}
+  if(!regionKey){showToast('請選擇地區');return;}
+  if(!addr){showToast('請填寫上課地址');return;}
   if(!sessions.length){showToast('請填寫至少一個上課日期');return;}
-  const reg=REGIONS[region_key];
-  const existing=editingId?books.find(x=>x.id===editingId):null;
-  const rec={
-    id:editingId||(crypto.randomUUID?crypto.randomUUID():Date.now().toString()),
-    name_zh, name_en:document.getElementById('m-name-en').value.trim(),
-    phone:document.getElementById('m-phone').value.trim(),
-    region_key, region:reg.label,
-    addr:document.getElementById('m-addr').value.trim(),
-    sessions,
-    dep_due:document.getElementById('m-dep-due').value,
-    conf_due:document.getElementById('m-conf-due').value,
-    status:existing?.status||'pending',
-    final_pax:existing?.final_pax||null,
-    balance:existing?.balance||null,
-  };
-  rec.msg1=buildMsg1(rec);
-  if(!(await upsert(rec)))return;
-  const idx=books.findIndex(x=>x.id===rec.id);
-  if(idx>=0)books[idx]=rec; else books.unshift(rec);
-  closeModal('booking-modal');
-  showMsg(rec.msg1,'預約單（已複製，可貼到 LINE）');
-  renderAll();
+
+  const reg=REGIONS[regionKey];
+  const sessionLines=sessions.map((s,i)=>`第${i+1}堂：${ff(s.date)} ${s.time||'時間未選'}`).join('\n');
+  const deposit=sessions.length*2000;
+
+  const result=`【畫糖課程預約資料】
+姓名：${name}
+LINE ID：${lineid}
+電話：${phone}
+地區：${reg.label}
+地址：${addr}
+堂數：${sessions.length}堂
+${sessionLines}
+定金：${deposit.toLocaleString()}元（${sessions.length}堂×2000元）
+---以上資料請勿修改---`;
+
+  document.getElementById('result-text').textContent=result;
+  document.getElementById('result-box').style.display='block';
+  document.getElementById('result-box').scrollIntoView({behavior:'smooth'});
+  document.getElementById('result-text')._data={name,lineid,phone,regionKey,addr,sessions};
 }
 
-function showMsg(msg,title){
-  currentMsg=msg;
-  document.getElementById('msg-title').textContent=title||'訊息';
-  document.getElementById('msg-content').textContent=msg;
-  navigator.clipboard.writeText(msg).catch(()=>{});
-  openModal('msg-modal');
-}
-function copyMsg(){
-  navigator.clipboard.writeText(currentMsg).then(()=>showToast('已複製 ✓')).catch(()=>showToast('請長按文字複製'));
-  closeModal('msg-modal');
+function copyResult(){
+  const txt=document.getElementById('result-text').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('已複製！請貼到 LINE 傳給阿斌師 ✓')).catch(()=>showToast('請長按文字複製'));
 }
 
-function renderReport(){
-  const active=books.filter(b=>b.status!=='cancelled');
-  const byR={}, byM={};
-  active.forEach(b=>{
-    const r=b.region||'未知'; if(!byR[r])byR[r]={n:0,dep:0}; byR[r].n++;
-    byR[r].dep+=((b.sessions||[]).length||1)*2000;
-    const m=fm((b.sessions||[])[0]?.date)||'未知'; if(!byM[m])byM[m]={n:0}; byM[m].n++;
-  });
-  document.getElementById('report-region').innerHTML=Object.keys(byR).length
-    ?Object.entries(byR).sort((a,b)=>b[1].n-a[1].n).map(([r,v])=>`<div class="report-card"><div class="report-row"><div><div style="font-weight:600;font-size:15px">${r}</div><div style="font-size:12px;color:var(--muted)">${v.n} 場</div></div></div></div>`).join('')
-    :'<div class="empty">尚無資料</div>';
-  document.getElementById('report-month').innerHTML=Object.keys(byM).length
-    ?Object.entries(byM).sort((a,b)=>b[0]>a[0]?1:-1).map(([m,v])=>`<div class="report-card"><div class="report-row"><div style="font-weight:600;font-size:15px">${m}</div><div style="font-size:12px;color:var(--muted)">${v.n} 場</div></div></div>`).join('')
-    :'<div class="empty">尚無資料</div>';
-  const done=books.filter(b=>b.status==='confirmed').reduce((s,b)=>s+(b.balance||0)+((b.sessions||[]).length||1)*2000,0);
-  const dep=books.filter(b=>['deposit','reconfirm'].includes(b.status)).reduce((s,b)=>s+((b.sessions||[]).length||1)*2000,0);
-  const pend=books.filter(b=>b.status==='pending').reduce((s,b)=>s+((b.sessions||[]).length||1)*2000,0);
-  document.getElementById('report-money').innerHTML=`<div class="report-card">
-    <div class="report-row" style="font-size:14px"><span>✅ 已完成收款</span><span style="color:var(--green);font-weight:700">${done.toLocaleString()} 元</span></div>
-    <div class="report-row" style="font-size:14px"><span>🔵 已收定金（待尾款）</span><span style="color:#2255aa;font-weight:700">${dep.toLocaleString()} 元</span></div>
-    <div class="report-row" style="font-size:14px"><span>🟡 待收定金</span><span style="color:var(--warn);font-weight:700">${pend.toLocaleString()} 元</span></div>
-  </div>`;
+function showToast(txt){
+  const t=document.getElementById('toast');
+  t.textContent=txt; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function exportCSV(){
-  if(!books.length){showToast('尚無資料可匯出');return;}
-  const SL={pending:'待收定金',deposit:'已收定金',reconfirm:'待確認人數',confirmed:'已收尾款',cancelled:'已取消'};
-  const headers=['姓名','英文名','電話','地區','地址','堂數','第1堂日期','第1堂時間','第2堂日期','第2堂時間','第3堂日期','第3堂時間','定金','最終人數','尾款','狀態','定金截止','確認截止'];
-  const rows=books.map(b=>{
-    const sessions=b.sessions||[];
-    const dep=((sessions.length||1)*2000);
-    return[
-      b.name_zh||'',b.name_en||'',b.phone||'',b.region||'',b.addr||'',
-      sessions.length,
-      sessions[0]?.date||'',sessions[0]?.time||'',
-      sessions[1]?.date||'',sessions[1]?.time||'',
-      sessions[2]?.date||'',sessions[2]?.time||'',
-      dep,b.final_pax||'',b.balance||'',
-      SL[b.status]||b.status||'',b.dep_due||'',b.conf_due||''
-    ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',');
-  });
-  const bom='\uFEFF';
-  const csv=bom+[headers.join(','),...rows].join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  const today=new Date();
-  a.download=`糖畫預約紀錄_${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('匯出成功！');
-}
-
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
-function showToast(txt){const t=document.getElementById('toast');t.textContent=txt;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
-function renderAll(){
-  if(document.getElementById('screen-home').classList.contains('active'))renderHome();
-  if(document.getElementById('screen-list').classList.contains('active'))renderList();
-  if(document.getElementById('screen-report').classList.contains('active'))renderReport();
-}
-
-async function init(){
-  books=await loadBooks();
-  renderAll();
-}
-init();
+// 預設一堂
+addSession();
 </script>
 </body>
 </html>
