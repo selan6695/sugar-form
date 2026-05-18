@@ -60,7 +60,20 @@ html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Pin
   <div class="card">
     <div class="sec-title">聯絡資料</div>
     <div class="field"><label>姓名 *</label><input type="text" id="c-name" placeholder="您的姓名"></div>
-    <div class="field"><label>LINE ID *</label><input type="text" id="c-lineid" placeholder="您的 LINE ID（方便聯繫）"></div>
+    <div class="field">
+      <label>聯絡平台 *</label>
+      <select id="c-platform">
+        <option value="">請選擇聯絡平台</option>
+        <option value="Messenger">Messenger</option>
+        <option value="Instagram">Instagram</option>
+        <option value="LINE">LINE</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>你在該平台上的名字 *</label>
+      <input type="text" id="c-lineid" placeholder="填你傳訊息給阿斌師時顯示的名字">
+      <div class="hint" style="color:#D4690A">就是你平常傳訊息給阿斌師時，對方看到的你的名字</div>
+    </div>
     <div class="field"><label>手機號碼 *</label><input type="tel" id="c-phone" placeholder="09XX-XXX-XXX"></div>
   </div>
 
@@ -169,6 +182,7 @@ function ff(s){
 
 function generate(){
   const name=document.getElementById('c-name').value.trim();
+  const platform=document.getElementById('c-platform').value;
   const lineid=document.getElementById('c-lineid').value.trim();
   const phone=document.getElementById('c-phone').value.trim();
   const regionKey=document.getElementById('c-region').value;
@@ -176,7 +190,8 @@ function generate(){
   const sessions=getSessions();
 
   if(!name){showToast('請填寫姓名');return;}
-  if(!lineid){showToast('請填寫 LINE ID');return;}
+  if(!platform){showToast('請選擇聯絡平台');return;}
+  if(!lineid){showToast('請填寫你在該平台上的名字');return;}
   if(!phone){showToast('請填寫手機號碼');return;}
   if(!regionKey){showToast('請選擇地區');return;}
   if(!addr){showToast('請填寫上課地址');return;}
@@ -188,7 +203,8 @@ function generate(){
 
   const result=`【畫糖課程預約資料】
 姓名：${name}
-LINE ID：${lineid}
+聯絡平台：${platform}
+平台名字：${lineid}
 電話：${phone}
 地區：${reg.label}
 地址：${addr}
@@ -200,7 +216,7 @@ ${sessionLines}
   document.getElementById('result-text').textContent=result;
   document.getElementById('result-box').style.display='block';
   document.getElementById('result-box').scrollIntoView({behavior:'smooth'});
-  document.getElementById('result-text')._data={name,lineid,phone,regionKey,addr,sessions};
+  document.getElementById('result-text')._data={name,platform,lineid,phone,regionKey,addr,sessions};
 }
 
 function copyResult(){
