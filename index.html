@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>畫糖文化體驗課程 預約填單</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--green:#D4690A;--bg:#fffaf0;--border:rgba(180,100,0,0.2);--text:#1a1a1a;--muted:#8a6a3a}
@@ -20,27 +21,27 @@ html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Pin
 .field:last-child{margin-bottom:0}
 .field label{font-size:13px;color:var(--muted);font-weight:500}
 .field input,.field select{font-size:15px;padding:11px 13px;border-radius:10px;border:0.5px solid var(--border);outline:none;width:100%;font-family:inherit;background:#fff;color:var(--text);-webkit-appearance:none}
-.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(212,105,10,0.12)}
 .hint{font-size:12px;color:var(--muted);margin-top:3px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-/* 堂次 */
 .session-card{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;border:0.5px solid var(--border)}
 .session-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .session-num{font-size:13px;font-weight:600;color:var(--green)}
 .btn-del{border:none;background:rgba(192,57,43,0.1);color:#c0392b;border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;font-family:inherit}
 .btn-add-session{width:100%;padding:11px;border-radius:10px;border:0.5px dashed #D4690A;background:transparent;color:#D4690A;font-size:14px;cursor:pointer;font-family:inherit;margin-top:4px}
-/* 結果 */
 .result-box{background:#fff;border-radius:14px;padding:18px;margin-top:16px;border:0.5px solid var(--border);display:none}
 .result-text{font-size:13px;line-height:1.85;white-space:pre-wrap;color:var(--text);background:var(--bg);border-radius:10px;padding:14px;max-height:300px;overflow-y:auto}
-.btn-main{width:100%;padding:15px;border-radius:12px;border:none;background:var(--green);color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;box-shadow:0 2px 10px rgba(29,158,117,0.3)}
-.btn-main:active{opacity:.85}
+.btn-gen{width:100%;padding:15px;border-radius:12px;border:none;background:#D4690A;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;box-shadow:0 2px 10px rgba(212,105,10,0.35)}
+.btn-gen:active{opacity:.85}
+.btn-gen:disabled{opacity:.5;cursor:not-allowed}
 .btn-copy{width:100%;padding:13px;border-radius:12px;border:0.5px solid var(--border);background:#fff;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.78);color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 .notice{background:#fff3cd;border-radius:10px;padding:12px;font-size:12px;color:#7a5000;line-height:1.7;margin-bottom:14px;border:0.5px solid #f0c060}
-.btn-gen{width:100%;padding:15px;border-radius:12px;border:none;background:#D4690A;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;box-shadow:0 2px 10px rgba(212,105,10,0.35)}
-.btn-gen:active{opacity:.85}
-.btn-copy{width:100%;padding:13px;border-radius:12px;border:0.5px solid var(--border);background:#fff;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+.success-banner{background:#e6f9ee;border:0.5px solid #1a7a4a;border-radius:12px;padding:16px;text-align:center;margin-top:16px;display:none}
+.success-banner .icon{font-size:32px;margin-bottom:8px}
+.success-banner h2{font-size:16px;font-weight:700;color:#1a7a4a;margin-bottom:6px}
+.success-banner p{font-size:13px;color:#2a6a4a;line-height:1.6}
 </style>
 </head>
 <body>
@@ -48,13 +49,13 @@ html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Pin
   <div class="header">
     <div class="icon">🐲</div>
     <h1>畫糖文化體驗課程<br>預約填單</h1>
-    <p>請填寫以下資料，填完後複製傳給阿斌師</p>
+    <p>請填寫以下資料，送出後阿斌師會收到通知並回覆您</p>
   </div>
 
   <div class="notice">
     📌 費用說明：500元/每位學員<br>
     📌 定金：每堂 2000元，確認後轉帳<br>
-    📌 填完後請按「產生預約資料」，複製傳給阿斌師
+    📌 填完後請按「送出預約」，阿斌師會盡快回覆您
   </div>
 
   <div class="card">
@@ -88,7 +89,7 @@ html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Pin
         <option value="keelung">基隆｜最低 20 人</option>
         <option value="taichung">台中｜最低 20 人</option>
       </select>
-      <div id="region-info" style="font-size:12px;color:#1a7a4a;margin-top:4px;display:none"></div>
+      <div id="region-info" style="font-size:12px;color:#D4690A;margin-top:4px;display:none"></div>
     </div>
     <div class="field"><label>上課地址 *</label><input type="text" id="c-addr" placeholder="請填寫詳細地址"></div>
   </div>
@@ -99,19 +100,24 @@ html,body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Pin
     <button class="btn-add-session" onclick="addSession()">＋ 新增堂次</button>
   </div>
 
-  <button class="btn-gen" onclick="generate()">產生預約資料</button>
+  <button class="btn-gen" id="btn-submit" onclick="submitBooking()">送出預約</button>
 
-  <div class="result-box" id="result-box">
-    <div class="sec-title" style="margin-bottom:10px">✅ 預約資料已產生</div>
-    <div class="result-text" id="result-text"></div>
-    <button class="btn-gen" onclick="copyResult()">點我複製（貼給阿斌師）</button>
-    <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px">複製後請貼到 LINE 傳給阿斌師</p>
+  <!-- 送出成功畫面 -->
+  <div class="success-banner" id="success-banner">
+    <div class="icon">✅</div>
+    <h2>預約資料已送出！</h2>
+    <p>阿斌師已收到您的預約資料<br>會盡快透過 <span id="s-platform"></span> 聯繫您<br>請確認訊息通知已開啟</p>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Supabase 設定（與管理系統相同）──
+const SURL='https://hfumliowejworifplzft.supabase.co';
+const SKEY='sb_publishable_Lw_0aQYMQ2ApdK4Ssas_3g_Qnjy78j-';
+const db=supabase.createClient(SURL,SKEY);
+
 const REGIONS={
   taipei:{label:'雙北（台北／新北）',minPax:12,travel:500},
   zhuzhu:{label:'桃竹苗（桃園／新竹／苗栗）',minPax:10,travel:500},
@@ -126,7 +132,7 @@ function showRegionInfo(){
   const info=document.getElementById('region-info');
   if(reg){
     info.textContent=`📌 最低開班 ${reg.minPax} 人・未達人數仍開班以 ${reg.minPax} 人計費・交通費 ${reg.travel.toLocaleString()} 元`;
-    info.style.color='#D4690A';
+    info.style.display='block';
   } else {
     info.style.display='none';
   }
@@ -161,7 +167,6 @@ function addSession(){
 function delSession(id){
   const el=document.getElementById(id);
   if(el)el.remove();
-  // 重新編號
   document.querySelectorAll('.session-card').forEach((card,i)=>{
     card.querySelector('.session-num').textContent=`第 ${i+1} 堂`;
   });
@@ -180,7 +185,81 @@ function ff(s){
   return`${d.getMonth()+1}/${d.getDate()}（${w[d.getDay()]}）`;
 }
 
-function generate(){
+function fd(d){return`${d.getMonth()+1}/${d.getDate()}`}
+
+function buildMsg1(rec){
+  const reg=REGIONS[rec.region_key]||{minPax:12,travel:0,label:''};
+  const sessions=rec.sessions||[];
+  const nSessions=sessions.length||1;
+  const sessionLines=sessions.map((s,i)=>`第${i+1}堂：${ff(s.date)} ${s.time||'＿'}`).join('\n');
+  const tl=reg.travel>0?`\n💰交通費：${reg.travel}元（${reg.label}地區）`:'';
+  const deposit=nSessions*2000;
+  const name=rec.name_en?`${rec.name_zh}（${rec.name_en}）`:rec.name_zh;
+  return `${sessions[0]?.date?ff(sessions[0].date):''}🐲【糖畫職人教你畫】
+『畫糖文化體驗課程預約單』：
+
+聯絡人：${name||'＿'}
+電話  : ${rec.phone||'＿'}
+地址 ：${rec.addr||'＿'}
+
+${sessionLines}
+
+💰課程費用：500元/每位學員
+📚此地區最低開班人數：${reg.minPax}人
+⚠️未達最低開班人數若仍要開班，將以${reg.minPax}人計費${tl}
+
+💰定金：${deposit.toLocaleString()}元（${nSessions}堂 × 2000元）
+
+銀行：中國信託新竹分行（822）
+帳號：299531713389
+
+❤️請於 ${rec.dep_due||'＿'} 前將定金${deposit.toLocaleString()}元轉帳至以上帳號，感謝你。
+未收到定金該日即開放其他人預約。
+
+⚠️收到定金後，我將在 ${rec.conf_due||'＿'} 前確認最後上課人數，再發出課程確認單給您，完成✅尾款交付後課程即成立。
+
+
+❇也歡迎使用 Line Pay 一卡通，阿斌師✳️Line ID：selanchen
+
+⭐️⭐️⭐️⭐️⭐️
+課程評價：
+https://forms.gle/c9BdP2AvetGpF5Es7
+
+媒體報導：
+TVBS 一步一腳印 發現新台灣 專訪
+https://youtu.be/WNZefc0IteY
+
+課程簡介與預約課程注意事項⚠️
+https://reurl.cc/A8nYgQ
+
+
+🍎課程預約說明🍎（一定要看）
+
+⚠️1. 確定上課日期後請於三日內付（每堂）定金2000元，之後會從尾款中扣除；指定日期內未繳交定金則該日期不為你保留，並開放給其他人預約。
+
+⚠️2. 課程尾款在上課日5天前須付清；指定日期未收到尾款則視同取消不退回定金。
+🌟（不接受當天付費）
+
+3. 付定金後取消預約或未達最低上課人數則不退回定金。
+4. 確定日期並付定金後不接受更改日期或延期，視同取消不退回定金。
+5. 上課日三天之前取消上課退費50%。
+
+🚧《場地需求》🚧（一定要看）
+
+1. 學員可以不需要桌面，有椅子坐或地板乾淨也可以坐在地板上課（前方準備一張長桌+6張椅子給阿斌師）
+2. 上課現場需要110V插座（2個）。請確認插座有電可以正常使用。
+3. 上課場地等費用、清潔費..等我方不負責。
+4. 因場地、電力…等問題造成課程無法進行，由主辦方負責。
+5. 開課人數依車程（或縣市）而有所不同，若預約後變更地點可能產生車馬費須由你支付。
+6. 教學設備老師會使用推車載運，無法推車及1F以上無電梯請提前告知。
+7. 準時上課不等人，老師會提早30分鐘到現場安排課程配置。
+8. 若需要阿斌師協助招生，請告知。我會將你的FB傳給想上課的朋友，她們會私訊你報名。
+
+🍒務必確認以上資訊。
+🍀可配合以上事項內容再繳付定金，謝謝。`;
+}
+
+async function submitBooking(){
   const name=document.getElementById('c-name').value.trim();
   const platform=document.getElementById('c-platform').value;
   const lineid=document.getElementById('c-lineid').value.trim();
@@ -198,30 +277,56 @@ function generate(){
   if(!sessions.length){showToast('請填寫至少一個上課日期');return;}
 
   const reg=REGIONS[regionKey];
-  const sessionLines=sessions.map((s,i)=>`第${i+1}堂：${ff(s.date)} ${s.time||'時間未選'}`).join('\n');
-  const deposit=sessions.length*2000;
 
-  const result=`【畫糖課程預約資料】
-姓名：${name}
-聯絡平台：${platform}
-平台名字：${lineid}
-電話：${phone}
-地區：${reg.label}
-地址：${addr}
-堂數：${sessions.length}堂
-${sessionLines}
-定金：${deposit.toLocaleString()}元（${sessions.length}堂×2000元）
----以上資料請勿修改---`;
+  // 計算日期
+  const dep=new Date(); dep.setDate(dep.getDate()+3);
+  const depDue=fd(dep);
+  const dates=sessions.map(s=>s.date).filter(Boolean).sort();
+  let confDue='＿';
+  if(dates[0]){
+    const d=new Date(dates[0]+'T00:00:00'); d.setDate(d.getDate()-7);
+    confDue=fd(d);
+  }
 
-  document.getElementById('result-text').textContent=result;
-  document.getElementById('result-box').style.display='block';
-  document.getElementById('result-box').scrollIntoView({behavior:'smooth'});
-  document.getElementById('result-text')._data={name,platform,lineid,phone,regionKey,addr,sessions};
-}
+  const rec={
+    id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+    name_zh: name,
+    name_en: `${platform}：${lineid}`,
+    phone,
+    region_key: regionKey,
+    region: reg.label,
+    addr,
+    sessions,
+    dep_due: depDue,
+    conf_due: confDue,
+    status: 'pending',
+    final_pax: null,
+    balance: null,
+    created_at: new Date().toISOString()
+  };
+  rec.msg1 = buildMsg1(rec);
 
-function copyResult(){
-  const txt=document.getElementById('result-text').textContent;
-  navigator.clipboard.writeText(txt).then(()=>showToast('已複製！請貼到 LINE 傳給阿斌師 ✓')).catch(()=>showToast('請長按文字複製'));
+  // 鎖住按鈕，避免重複送出
+  const btn=document.getElementById('btn-submit');
+  btn.disabled=true;
+  btn.textContent='送出中…';
+
+  const {error}=await db.from('bookings').insert(rec);
+
+  if(error){
+    btn.disabled=false;
+    btn.textContent='送出預約';
+    showToast('送出失敗，請稍後再試');
+    console.error(error);
+    return;
+  }
+
+  // 成功
+  btn.style.display='none';
+  document.getElementById('s-platform').textContent=platform;
+  document.getElementById('success-banner').style.display='block';
+  document.getElementById('success-banner').scrollIntoView({behavior:'smooth'});
+  showToast('預約已送出！✓');
 }
 
 function showToast(txt){
